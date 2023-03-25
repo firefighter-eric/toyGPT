@@ -36,8 +36,8 @@ ds = ds.map(gen_poem_text, num_proc=NUM_PROC)
 ds = ds.train_test_split(test_size=0.1, shuffle=True, seed=42)
 # %% save
 
-ds['train'].save_to_disk(f'{p1_dataset_dir}/train.json')
-ds['test'].save_to_disk(f'{p1_dataset_dir}/test.json')
+ds['train'].to_json(f'{p0_json_dir}/train.json', force_ascii=False)
+ds['test'].to_json(f'{p0_json_dir}/test.json', force_ascii=False)
 
 # %% tokenize
 
