@@ -10,7 +10,7 @@ from transformers import TrainingArguments
 from pprint import pprint
 
 
-# config
+# %% config
 @dataclass
 class CustomTrainArguments:
     data_path: str = ''
@@ -26,6 +26,8 @@ class CustomTrainArguments:
     run_name: str = ''
 
     learning_rate: float = 3e-5
+
+    torch_compile: bool = True
 
     def __post_init__(self):
         if not self.tokenizer_path:
@@ -52,16 +54,18 @@ custom_train_args: CustomTrainArguments
 
 pprint(custom_train_args.__dict__)
 
-# data
+# %% data
 data = DatasetDict.load_from_disk(dataset_dict_path=custom_train_args.data_path)
-#
-# # model
+print('data loaded')
+print(data)
+
+# %% model
 tokenizer = AutoTokenizer.from_pretrained(custom_train_args.tokenizer_path)
 model = AutoModelForCausalLM.from_pretrained(custom_train_args.model_path)
 
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
-# trainer
+# %% trainer
 train_args = TrainingArguments(
     output_dir=custom_train_args.output_dir,
     overwrite_output_dir=False,
@@ -106,6 +110,7 @@ train_args = TrainingArguments(
     do_eval=True,
     do_predict=False,
     load_best_model_at_end=True,
+    torch_compile=custom_train_args.torch_compile,
     seed=42,
 )
 
@@ -118,6 +123,6 @@ trainer = Trainer(
 
 )
 
-# train
+# %% train
 
 trainer.train()

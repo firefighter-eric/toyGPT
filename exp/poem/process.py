@@ -8,7 +8,7 @@ from transformers import AutoTokenizer
 # %% config
 
 NUM_PROC = 8
-MAX_LENGTH = 512
+MAX_LENGTH = 1024
 BATCH = 10000
 tokenizer_path = 'facebook/opt-125m'
 exp_dir = 'data/chinese-poetry/quan_tang_shi'
