@@ -2,16 +2,24 @@ from argparse import ArgumentParser
 
 from transformers import pipeline
 
+from models import OPTForCausalLM
+
 parser = ArgumentParser()
+parser.add_argument('--model_class', '-mc', type=str, default='auto')
 parser.add_argument('--model_path', '-m', type=str)
 parser.add_argument('--tokenizer_path', '-t', type=str, required=False)
-parser.add_argument('--num_return_sequences', '-n', type=str, default=5)
+parser.add_argument('--num_return_sequences', '-n', type=int, default=5)
 args = parser.parse_args()
 
 model_path = args.model_path
 tokenizer_path = args.tokenizer_path or model_path
 
-generator = pipeline('text-generation', model=model_path, tokenizer=tokenizer_path)
+if args.model_class == 'auto':
+    model = model_path
+else:
+    model = OPTForCausalLM.from_pretrained(model_path)
+
+generator = pipeline('text-generation', model=model, tokenizer=tokenizer_path)
 
 while True:
     text = input('Intput:')
@@ -24,4 +32,5 @@ while True:
         print(output['generated_text'])
         print('-' * 100)
 
+# python -m app.generate_cli -mc opt -m gpt2 -t gpt2 -n 5
 # python -m app.generate_cli -m gpt2 -t gpt2 -n 5
