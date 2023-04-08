@@ -19,7 +19,7 @@ if args.model_class == 'auto':
 else:
     model = OPTForCausalLM.from_pretrained(model_path)
 
-generator = pipeline('text-generation', model=model, tokenizer=tokenizer_path)
+generator = pipeline('text-generation', model=model, tokenizer=tokenizer_path, device=0)
 
 while True:
     text = input('Intput:')

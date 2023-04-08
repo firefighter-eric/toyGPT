@@ -21,11 +21,13 @@ class Args:
     tokenizer_path: str = ''
     model_path: str = ''
     model_class_name: str = 'auto'
+    max_length: int = 1024
 
     output_dir: str = ''
     num_train_epochs: int = 1
     total_batch_size: int = -1
     mini_batch_size: int = -1
+    gradient_checkpointing: bool = False
 
     project_name: str = ''
     run_name: str = ''
@@ -65,6 +67,7 @@ print(data)
 
 # %% model
 tokenizer = AutoTokenizer.from_pretrained(args.tokenizer_path)
+tokenizer.max_length = args.max_length
 
 if args.model_class_name == 'auto':
     model = AutoModelForCausalLM.from_pretrained(args.model_path)
@@ -87,6 +90,7 @@ train_args = TrainingArguments(
     per_device_eval_batch_size=args.mini_batch_size,
     gradient_accumulation_steps=args.gradient_accumulation_steps,
     dataloader_num_workers=2,
+    gradient_checkpointing=args.gradient_checkpointing,
 
     # precision
     bf16=True,
@@ -138,6 +142,8 @@ trainer = Trainer(
 # %% train
 
 trainer.train()
+trainer.save_model(output_dir=f'{args.output_dir}/best')
+tokenizer.save_pretrained(f'{args.output_dir}/best')
 
 """
 CONFIG=''
