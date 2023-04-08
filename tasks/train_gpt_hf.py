@@ -1,21 +1,26 @@
 import os
+import sys
 import time
 from argparse import ArgumentParser
 from dataclasses import dataclass
+from os import path as osp
+from pprint import pprint
 
 from datasets import DatasetDict
 from transformers import AutoTokenizer, AutoModelForCausalLM, DataCollatorForLanguageModeling, Trainer
 from transformers import HfArgumentParser
 from transformers import TrainingArguments
-from pprint import pprint
+
+sys.path.append(osp.join(osp.dirname(__file__), '..'))
 
 
 # %% config
 @dataclass
-class CustomTrainArguments:
+class Args:
     data_path: str = ''
     tokenizer_path: str = ''
     model_path: str = ''
+    model_class_name: str = 'auto'
 
     output_dir: str = ''
     num_train_epochs: int = 1
@@ -46,34 +51,41 @@ class CustomTrainArguments:
 
 parser = ArgumentParser()
 parser.add_argument('--config_path', '-c', type=str)
-args = parser.parse_args()
+cli_args = parser.parse_args()
 
-hf_parser = HfArgumentParser([CustomTrainArguments])
-custom_train_args, = hf_parser.parse_yaml_file(args.config_path)
-custom_train_args: CustomTrainArguments
+hf_parser = HfArgumentParser([Args])
+args: Args = hf_parser.parse_yaml_file(cli_args.config_path)[0]
 
-pprint(custom_train_args.__dict__)
+pprint(args.__dict__)
 
 # %% data
-data = DatasetDict.load_from_disk(dataset_dict_path=custom_train_args.data_path)
+data = DatasetDict.load_from_disk(dataset_dict_path=args.data_path)
 print('data loaded')
 print(data)
 
 # %% model
-tokenizer = AutoTokenizer.from_pretrained(custom_train_args.tokenizer_path)
-model = AutoModelForCausalLM.from_pretrained(custom_train_args.model_path)
+tokenizer = AutoTokenizer.from_pretrained(args.tokenizer_path)
+
+if args.model_class_name == 'auto':
+    model = AutoModelForCausalLM.from_pretrained(args.model_path)
+elif args.model_class_name == 'flash opt':
+    from models import OPTForCausalLM
+
+    model = OPTForCausalLM.from_pretrained(args.model_path)
+else:
+    raise ValueError(f'Unknown model class name: {args.model_class_name}')
 
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
 # %% trainer
 train_args = TrainingArguments(
-    output_dir=custom_train_args.output_dir,
+    output_dir=args.output_dir,
     overwrite_output_dir=False,
 
     # data
-    per_device_train_batch_size=custom_train_args.mini_batch_size,
-    per_device_eval_batch_size=custom_train_args.mini_batch_size,
-    gradient_accumulation_steps=custom_train_args.gradient_accumulation_steps,
+    per_device_train_batch_size=args.mini_batch_size,
+    per_device_eval_batch_size=args.mini_batch_size,
+    gradient_accumulation_steps=args.gradient_accumulation_steps,
     dataloader_num_workers=2,
 
     # precision
@@ -92,14 +104,14 @@ train_args = TrainingArguments(
     # log
     logging_strategy='steps',
     logging_steps=10,
-    logging_dir=custom_train_args.output_dir,
+    logging_dir=args.output_dir,
     logging_first_step=True,
-    run_name=custom_train_args.run_name,
+    run_name=args.run_name,
     report_to=['wandb'],
 
     # hyper-parameters
-    learning_rate=custom_train_args.learning_rate,
-    num_train_epochs=custom_train_args.num_train_epochs,
+    learning_rate=args.learning_rate,
+    num_train_epochs=args.num_train_epochs,
     warmup_steps=0,
     weight_decay=0.0,
 
@@ -110,7 +122,7 @@ train_args = TrainingArguments(
     do_eval=True,
     do_predict=False,
     load_best_model_at_end=True,
-    torch_compile=custom_train_args.torch_compile,
+    torch_compile=args.torch_compile,
     seed=42,
 )
 
@@ -126,3 +138,8 @@ trainer = Trainer(
 # %% train
 
 trainer.train()
+
+"""
+CONFIG=''
+torchrun --nnodes 1 --nproc-per-node 1 tasks/train_opt_fast.py -c $CONFIG
+"""
