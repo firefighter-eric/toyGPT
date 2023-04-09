@@ -1,6 +1,7 @@
 import torch
-from models import OPTForCausalLM
 from transformers import AutoTokenizer, AutoModelForCausalLM
+
+from models import OPTForCausalLM
 
 
 def check_same_result():

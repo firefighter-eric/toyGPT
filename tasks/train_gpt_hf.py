@@ -2,7 +2,7 @@ import os
 import sys
 import time
 from argparse import ArgumentParser
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from os import path as osp
 from pprint import pprint
 
@@ -17,9 +17,10 @@ sys.path.append(osp.join(osp.dirname(__file__), '..'))
 # %% config
 @dataclass
 class Args:
-    data_path: str = ''
+    data_path: str = field()
+    model_path: str = field()
     tokenizer_path: str = ''
-    model_path: str = ''
+
     model_class_name: str = 'auto'
     max_length: int = 1024
 
@@ -28,6 +29,9 @@ class Args:
     total_batch_size: int = -1
     mini_batch_size: int = -1
     gradient_checkpointing: bool = False
+
+    optim: str = 'adamw_torch_fused'
+    fp16_opt_level: str = 'O1'  # ['O0', 'O1', 'O2', and 'O3']
 
     project_name: str = ''
     run_name: str = ''
@@ -80,6 +84,10 @@ else:
 
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 
+# %% optimizer
+# if args.optim == 'adam_bf16':
+
+
 # %% trainer
 train_args = TrainingArguments(
     output_dir=args.output_dir,
@@ -95,6 +103,8 @@ train_args = TrainingArguments(
     # precision
     bf16=True,
     bf16_full_eval=True,
+    tf32=True,
+    fp16_opt_level=args.fp16_opt_level,
 
     # eval
     evaluation_strategy='steps',
@@ -115,9 +125,11 @@ train_args = TrainingArguments(
 
     # hyper-parameters
     learning_rate=args.learning_rate,
+    lr_scheduler_type='constant',
     num_train_epochs=args.num_train_epochs,
     warmup_steps=0,
     weight_decay=0.0,
+    optim=args.optim,
 
     greater_is_better=False,
 

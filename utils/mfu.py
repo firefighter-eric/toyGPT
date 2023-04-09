@@ -56,3 +56,5 @@ if __name__ == '__main__':
     opt_mfu(model='facebook/opt-125m', block_size=1024, fb_per_iter=32, device='3090', dt=0.837, n_params=125e6)
     opt_mfu(model='facebook/opt-125m', block_size=1024, fb_per_iter=32, device='3090', dt=0.641, n_params=125e6)
     opt_mfu(model='facebook/opt-350m', block_size=1024, fb_per_iter=32, device='3090', dt=1.57, n_params=350e6)
+    opt_mfu(model='facebook/opt-1.3b', block_size=1024, fb_per_iter=32, device='3090', dt=11.15, n_params=1.3e9)
+    opt_mfu(model='facebook/opt-1.3b', block_size=512, fb_per_iter=32, device='3090', dt=6.16, n_params=1.3e9)
