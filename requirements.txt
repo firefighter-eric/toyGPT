@@ -1,0 +1,8 @@
+# pytorch
+
+transformers
+tokenizers
+safetensors
+accelerate
+
+bitsandbytes
