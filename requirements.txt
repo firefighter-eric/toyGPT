@@ -1,8 +1,16 @@
 # pytorch
+# https://pytorch.org/get-started/locally/
 
 transformers
+
 tokenizers
+sentencepiece
+tiktoken
+
 safetensors
+
 accelerate
+deepspeed
 
 bitsandbytes
+peft
