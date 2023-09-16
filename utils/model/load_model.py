@@ -1,12 +1,29 @@
 import os
 
-from transformers import PreTrainedModel, AutoModelForCausalLM, AutoTokenizer, PreTrainedTokenizer
+import torch
+from transformers import PreTrainedModel, AutoModelForCausalLM, AutoTokenizer, PreTrainedTokenizer, BitsAndBytesConfig
 
 
-def load_model(model_name_or_path, model_type, ) -> PreTrainedModel:
+def load_model(model_name_or_path, model_type, **kwargs) -> PreTrainedModel:
     args = {'device_map': 'auto'}
-    if True:
+    if kwargs.get('load_in_8bit'):
         args['load_in_8bit'] = True
+        quantization_config = BitsAndBytesConfig(
+            load_in_8bit=True,
+            llm_int8_threshold=6.0,
+        )
+        args['quantization_config'] = quantization_config
+    if kwargs.get('load_in_4bit'):
+        print('load in 4bit')
+        args['load_in_4bit'] = True
+        quantization_config = BitsAndBytesConfig(
+            load_in_4bit=True,
+            llm_int8_threshold=6.0,
+            bnb_4bit_compute_dtype=torch.bfloat16,
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_quant_type='nf4'  # {'fp4', 'nf4'}
+        )
+        args['quantization_config'] = quantization_config
 
     if model_type == 'auto':
         model = AutoModelForCausalLM.from_pretrained(model_name_or_path, **args)
@@ -21,6 +38,7 @@ def load_model(model_name_or_path, model_type, ) -> PreTrainedModel:
         model = LlamaForCausalLM.from_pretrained(model_name_or_path, **args)
     else:
         raise ValueError(f'Unknown model class name: {model_name_or_path}')
+    print(f'model loaded, {model.dtype}')
     return model
 
 

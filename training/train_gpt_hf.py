@@ -33,6 +33,9 @@ class ModelArguments:
     model_name_or_path: Optional[str] = ''
     model_type: str = 'auto'
     tokenizer_path: Optional[str] = ''
+
+    load_in_8bit: bool = False
+    load_in_4bit: bool = False
     torch_dtype: Optional[str] = field(
         default=None,
         metadata={"choices": ["auto", "bfloat16", "float16", "float32"]},
@@ -82,12 +85,9 @@ data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
 # %% data
 data = load_data(path=data_args.data_path, tokenizer=tokenizer, max_length=data_args.max_length, test_size=0.1)
 print('Data loaded')
-print(data)
-print(data['train'][0])
-print(tokenizer.decode(data['train'][0]['input_ids']))
 
 # %% model
-model = load_model(model_name_or_path=model_args.model_name_or_path, model_type=model_args.model_type)
+model = load_model(**model_args.__dict__)
 model.enable_input_require_grads()
 peft_config = LoraConfig(
     task_type=TaskType.CAUSAL_LM,
