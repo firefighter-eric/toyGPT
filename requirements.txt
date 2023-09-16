@@ -2,6 +2,7 @@
 # https://pytorch.org/get-started/locally/
 
 transformers
+datasets
 
 tokenizers
 sentencepiece
@@ -14,3 +15,7 @@ deepspeed
 
 bitsandbytes
 peft
+
+numpy
+pandas
+scipy

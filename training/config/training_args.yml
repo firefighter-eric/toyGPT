@@ -1,0 +1,106 @@
+data_path:
+model_name_or_path:
+model_type:
+tokenizer_path:
+
+# output
+output_dir:
+logging_dir:
+run_name:
+
+do_eval: true
+do_predict: false
+do_train: false
+
+# hyperparameters
+per_device_eval_batch_size: 8
+per_device_train_batch_size: 8
+learning_rate: 5.0e-05
+num_train_epochs: 3.0
+
+warmup_ratio: 0.0
+warmup_steps: 0
+weight_decay: 0.0
+
+lr_scheduler_type: constant
+
+gradient_accumulation_steps: 1
+gradient_checkpointing: true
+
+# precision
+bf16: true
+bf16_full_eval: true
+fp16: false
+fp16_backend: auto
+fp16_full_eval: false
+fp16_opt_level: O1
+tf32: true
+
+# data
+data_seed: None
+dataloader_drop_last: false
+dataloader_num_workers: 0
+dataloader_pin_memory: true
+
+deepspeed: None
+disable_tqdm: false
+
+# eval
+eval_batch_size: 8
+eval_delay: 0
+eval_steps: 100
+evaluation_strategy: 'no'
+
+greater_is_better: None
+metric_for_best_model: None
+
+label_names: None
+label_smoothing_factor: 0.0
+
+length_column_name: length
+load_best_model_at_end: true
+local_rank: 0
+log_level: passive
+log_level_replica: warning
+log_on_each_node: true
+
+logging_first_step: true
+logging_nan_inf_filter: true
+logging_steps: 10
+logging_strategy: steps
+
+
+max_grad_norm: 1.0
+max_steps: -1
+
+mp_parameters: ''
+no_cuda: false
+
+optim: adamw_torch
+optim_args: None
+
+overwrite_output_dir: true
+past_index: -1
+
+per_gpu_eval_batch_size: None
+per_gpu_train_batch_size: None
+prediction_loss_only: True
+
+remove_unused_columns: true
+report_to:
+  - wandb
+resume_from_checkpoint: None
+
+save_on_each_node: false
+save_safetensors: false
+save_steps: 100
+save_strategy: steps
+save_total_limit: 2
+seed: 42
+skip_memory_metrics: true
+
+torch_compile: true
+torch_compile_backend: None
+torch_compile_mode: None
+
+
