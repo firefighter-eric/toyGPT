@@ -53,24 +53,34 @@ class MyTrainingArguments(TrainingArguments):
 parser = ArgumentParser()
 parser.add_argument('--config_path', '-c', type=str)
 cli_args = parser.parse_args()
+print(cli_args)
 
 data_args: DataTrainingArguments
 model_args: ModelArguments
-training_args: TrainingArguments
-hf_parser = HfArgumentParser([DataTrainingArguments, ModelArguments, TrainingArguments])
+training_args: MyTrainingArguments
+hf_parser = HfArgumentParser([DataTrainingArguments, ModelArguments, MyTrainingArguments])
 data_args, model_args, training_args = hf_parser.parse_yaml_file(yaml_file=cli_args.config_path)
+
+print(data_args)
+print(model_args)
+print(training_args)
 
 pprint(data_args.__dict__)
 
-# %% data
-data = load_data(data_args.data_path)
-print('data loaded')
-print(data)
 
-# %% model
+# %% tokenizer
 tokenizer = AutoTokenizer.from_pretrained(model_args.tokenizer_path)
 tokenizer.max_length = data_args.max_length
+tokenizer.pad_token = 2
 
+# %% data
+data = load_data(path=data_args.data_path, tokenizer=tokenizer, max_length=data_args.max_length, test_size=0.1)
+print('Data loaded')
+print(data)
+print(data['train'][0])
+print(tokenizer.decode(data['train'][0]['input_ids']))
+
+# %% model
 model = load_model(model_name_or_path=model_args.model_name_or_path, model_type=model_args.model_type)
 
 data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
@@ -99,5 +109,5 @@ tokenizer.save_pretrained(f'{training_args.output_dir}/best')
 
 """
 CONFIG=''
-torchrun --nnodes 1 --nproc-per-node 1 tasks/train_opt_fast.py -c $CONFIG
+torchrun --nnodes 1 --nproc-per-node 1 training/train_gpt_hf.py -c $CONFIG
 """

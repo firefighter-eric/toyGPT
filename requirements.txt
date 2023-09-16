@@ -19,3 +19,6 @@ peft
 numpy
 pandas
 scipy
+
+wandb
+tensorboard
