@@ -1181,8 +1181,8 @@ def test_inference(precision=torch.bfloat16, device='cuda'):
 
     print(f'test inference, precision={precision}, device={device}')
     print('mean error:', (o_hf.logits - o_flash.logits).abs().mean())
-    # assert torch.allclose(o_hf.logits, o_flash.logits, atol=1e-5)
     diff_np = (o_flash.logits - o_hf.logits).abs().float().cpu().numpy()
+    assert torch.allclose(o_hf.logits, o_flash.logits, atol=1e-5)
     return diff_np
 
 
@@ -1202,7 +1202,7 @@ def test_generate(precision=torch.bfloat16, device='cuda'):
     print(f'test generate, precision={precision}, device={device}')
     print('hf generate output:', tokenizer.decode(o_hf[0]))
     print('flash generate output:', tokenizer.decode(o_flash[0]))
-    # assert tokenizer.decode(o_hf[0]) == tokenizer.decode(o_flash[0])
+    assert tokenizer.decode(o_hf[0]) == tokenizer.decode(o_flash[0])
 
 
 if __name__ == '__main__':
