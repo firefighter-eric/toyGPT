@@ -5,7 +5,7 @@ from transformers import PreTrainedModel, AutoModelForCausalLM, AutoTokenizer, P
 
 
 def load_model(model_name_or_path, model_type, **kwargs) -> PreTrainedModel:
-    args = {'device_map': 'auto'}
+    args = {'device_map': 'auto', 'torch_dtype': 'auto'}
     if kwargs.get('load_in_8bit'):
         args['load_in_8bit'] = True
         quantization_config = BitsAndBytesConfig(

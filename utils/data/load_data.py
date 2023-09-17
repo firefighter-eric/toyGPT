@@ -64,9 +64,9 @@ def load_data(path: str, tokenizer: PreTrainedTokenizer, max_length: int = 1024,
         data = processor.load_json(path=path)
     # else:
     #     data = processor.load_dataset_dict(path=path)
-    print(d)
-    print(d['train'][0]['input_ids'])
-    print(tokenizer.decode(d['train'][0]['input_ids']))
+    print(data)
+    print(data['train'][0]['input_ids'])
+    print(tokenizer.decode(data['train'][0]['input_ids']))
     return data
 
 

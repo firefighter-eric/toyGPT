@@ -51,13 +51,14 @@ class ModelArguments:
 class MyTrainingArguments(TrainingArguments):
     project_name: str = ''
     # lora
+    lora: bool = False
     target_modules: list[str] = None
 
     def __post_init__(self):
         super().__post_init__()
         # wandb
         os.environ['WANDB_PROJECT'] = self.project_name
-        self.run_name += f'-{time.time()}'
+        self.run_name += f'-{int(time.time())}'
 
 
 # %% config
@@ -88,18 +89,20 @@ print('Data loaded')
 
 # %% model
 model = load_model(**model_args.__dict__)
-model.enable_input_require_grads()
-peft_config = LoraConfig(
-    task_type=TaskType.CAUSAL_LM,
-    inference_mode=False,
-    r=8,
-    lora_alpha=32,
-    lora_dropout=0.05,
-    # target_modules=training_args.target_modules
-    # bias="all"
-)
-model = get_peft_model(model, peft_config)
-model.print_trainable_parameters()
+
+if training_args.lora:
+    model.enable_input_require_grads()
+    peft_config = LoraConfig(
+        task_type=TaskType.CAUSAL_LM,
+        inference_mode=False,
+        r=8,
+        lora_alpha=32,
+        lora_dropout=0.05,
+        # target_modules=training_args.target_modules
+        # bias="all"
+    )
+    model = get_peft_model(model, peft_config)
+    model.print_trainable_parameters()
 
 # %% optimizer
 # if data_args.optim == 'adam_bf16':
@@ -122,6 +125,7 @@ trainer.save_model(output_dir=f'{training_args.output_dir}/best')
 tokenizer.save_pretrained(f'{training_args.output_dir}/best')
 
 """
-CONFIG=''
-torchrun --nnodes 1 --nproc-per-node 1 training/train_gpt_hf.py -c $CONFIG
+config=''
+python training/train_gpt_hf.py -c $config
+torchrun --nnodes 1 --nproc-per-node 1 training/train_gpt_hf.py -c $config
 """

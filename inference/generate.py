@@ -6,9 +6,8 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, TextGenerationPipe
 
 # %%
 parser = ArgumentParser()
-parser.add_argument('--model_path', '-m', type=str, default='/mnt/h/models/llama-7b')
+parser.add_argument('--model_path', '-m', type=str, default='')
 parser.add_argument('--lora_path', '-l', type=str, default='')
-# parser.add_argument('--precision', '-p', type=str, default='bf16')
 parser.add_argument('--prompt', '-t', type=str, default='你好')
 
 args = parser.parse_args()
@@ -27,7 +26,7 @@ output = pipeline(args.prompt, max_length=512, do_sample=False, top_p=1, num_ret
 print(output)
 while True:
     prompt = input('Human: ')
-    output = pipeline(prompt, max_new_tokens=32, do_sample=False, top_p=1, num_return_sequences=1, return_full_text=False)
+    output = pipeline(prompt, max_new_tokens=32, num_beams=10, num_return_sequences=5, return_full_text=False)
     for o in output:
         print('Bot:', o['generated_text'])
     print('-' * 100)

@@ -15,6 +15,12 @@ do_eval: true
 do_predict: false
 do_train: true
 
+# lora
+lora: true
+load_in_4bit: true
+load_in_8bit: false
+target_modules: [ q_proj, v_proj, k_proj, o_proj, gate_proj, down_proj, up_proj ]
+
 # hyperparameters
 per_device_eval_batch_size: 8
 per_device_train_batch_size: 8
@@ -31,9 +37,11 @@ optim: adamw_torch
 gradient_accumulation_steps: 1
 gradient_checkpointing: true
 
+# backend
 torch_compile: true
 #torch_compile_backend: None
 #torch_compile_mode: None
+deepspeed: None
 
 # precision
 bf16: true
@@ -45,13 +53,12 @@ fp16_opt_level: O1
 tf32: true
 
 # data
+seed: 42
 data_seed: None
 dataloader_drop_last: false
 dataloader_num_workers: 0
 dataloader_pin_memory: true
-
-deepspeed: None
-disable_tqdm: false
+remove_unused_columns: true
 
 # eval
 eval_delay: 0
@@ -61,9 +68,6 @@ prediction_loss_only: True
 
 #greater_is_better: None
 #metric_for_best_model: None
-
-label_smoothing_factor: 0.0
-
 
 # log
 log_level: passive
@@ -75,10 +79,7 @@ logging_steps: 10
 logging_strategy: steps
 report_to:
   - wandb
-
-remove_unused_columns: true
-
-#resume_from_checkpoint: None
+disable_tqdm: false
 
 # save
 save_safetensors: false
@@ -87,9 +88,6 @@ save_strategy: steps
 save_total_limit: 2
 load_best_model_at_end: true
 
-seed: 42
-skip_memory_metrics: true
-
-
+#resume_from_checkpoint: None
 
 

@@ -22,3 +22,5 @@ scipy
 
 wandb
 tensorboard
+
+opencc
