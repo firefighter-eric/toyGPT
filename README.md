@@ -1,1 +1,1 @@
-# topGPT
+# toyGPT
